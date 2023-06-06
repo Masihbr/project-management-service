@@ -23,7 +23,7 @@ class TaskCreateUpdateSerializer(serializers.ModelSerializer):
         project: project_models.Project = value
         creator = self.context['request'].user
         is_creator_developer = creator.role == account_models.User.Role.DEVELOPER.value
-        is_creator_product_manager = creator.role == account_models.User.Role.PRODUCT_MANAGER.value
+        is_creator_product_manager = creator.role == account_models.User.Role.PROJECT_MANAGER.value
         if is_creator_product_manager and project.creator != creator:
             raise serializers.ValidationError(
                 'You can only assign tasks to your own projects.')

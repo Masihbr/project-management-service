@@ -23,7 +23,7 @@ class ProjectModelViewSet(viewsets.ModelViewSet):
             return project_models.Project.objects.all()
         if self.request.user.role == account_models.User.Role.DEVELOPER.value:
             return project_models.Project.objects.filter(assignees=user)
-        elif self.request.user.role == account_models.User.Role.PRODUCT_MANAGER.value:
+        elif self.request.user.role == account_models.User.Role.PROJECT_MANAGER.value:
             return project_models.Project.objects.filter(creator=user)
         else:
             return project_models.Project.objects.none()
@@ -45,7 +45,7 @@ class TaskModelViewSet(viewsets.ModelViewSet):
         if self.request.user.role == account_models.User.Role.DEVELOPER.value:
             projects = project_models.Project.objects.filter(assignees=user)
             return project_models.Task.objects.filter(project__in=projects)
-        elif self.request.user.role == account_models.User.Role.PRODUCT_MANAGER.value:
+        elif self.request.user.role == account_models.User.Role.PROJECT_MANAGER.value:
             projects = project_models.Project.objects.filter(creator=user)
             return project_models.Task.objects.filter(project__in=projects)
         else:
