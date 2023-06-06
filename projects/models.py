@@ -9,7 +9,7 @@ class Project(models.Model):
     creator = models.ForeignKey(
         "accounts.User", on_delete=models.CASCADE, related_name="created_projects")
     assignees = models.ManyToManyField(
-        "accounts.User", null=True, blank=True, related_name="assigned_projects")
+        "accounts.User", blank=True, related_name="assigned_projects")
 
 
 class Task(models.Model):
