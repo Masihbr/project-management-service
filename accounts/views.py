@@ -26,7 +26,7 @@ class LoginAPIView(generics.GenericAPIView):
         user = authenticate(
             request=request, username=username, password=password)
         if user is not None:
-            auth_login(request,  user)
+            auth_login(request, user)
             return Response({"detail": "Logged in successfully."})
         else:
             return Response(
