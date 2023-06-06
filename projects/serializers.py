@@ -7,44 +7,41 @@ from accounts import models as account_models
 class TaskCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = project_models.Task
-        fields = ('id', 'title', 'description', 'status',
-                  'creator', 'project', 'assignee')
+        fields = ('id', 'creator', 'title', 'description', 'status',
+                  'project', 'assignee', 'created_at', 'updated_at')
         read_only_fields = ('creator',)
 
     def validate_assignee(self, value):
-        creator = self.context['request'].user
-        is_creator_developer = creator.role == account_models.User.Role.DEVELOPER.value
-        if is_creator_developer and value != creator:
+        creator: account_models.User = self.context['request'].user
+        if creator.is_developer and value != creator:
             raise serializers.ValidationError(
                 'You can only assign tasks to yourself.')
         return value
 
     def validate_project(self, value):
         project: project_models.Project = value
-        creator = self.context['request'].user
-        is_creator_developer = creator.role == account_models.User.Role.DEVELOPER.value
-        is_creator_product_manager = creator.role == account_models.User.Role.PROJECT_MANAGER.value
-        if is_creator_product_manager and project.creator != creator:
+        creator: account_models.User = self.context['request'].user
+        if creator.is_project_manager and project.creator != creator:
             raise serializers.ValidationError(
-                'You can only assign tasks to your own projects.')
-        elif is_creator_developer and not project.assignees.contains(creator):
+                'You can only assign tasks to projects you have created.')
+        elif creator.is_developer and not project.has_assignee(creator):
             raise serializers.ValidationError(
-                'You can only assign tasks to your own projects.')
+                'You can only assign tasks to projects you have been assigned to.')
         return value
 
     def validate(self, attrs):
         project: project_models.Project = attrs.get('project')
         assignee: account_models.User = attrs.get('assignee')
-        if not project.assignees.contains(assignee):
+        if not project.has_assignee(assignee):
             raise serializers.ValidationError(
-                'Assignee must be in the project.')
+                'Task assignee must be in the project.')
         return super().validate(attrs)
 
     def create(self, validated_data):
         return super().create({**validated_data, 'creator': self.context['request'].user})
 
 
-class TaskGetSerializer(serializers.ModelSerializer):
+class TaskListRetrieveSerializer(serializers.ReadOnlyModelSerializer):
     assignee = account_serializers.UserSerializer(many=False, read_only=True)
     creator = account_serializers.UserSerializer(many=False, read_only=True)
 
@@ -57,7 +54,8 @@ class TaskGetSerializer(serializers.ModelSerializer):
 class ProjectCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = project_models.Project
-        fields = ('id', 'title', 'description', 'creator', 'assignees')
+        fields = ('id', 'title', 'description', 'tasks',
+                  'creator', 'assignees', 'created_at', 'updated_at')
         extra_kwargs = {'assignees': {'required': False}}
         read_only_fields = ('creator',)
 
@@ -65,12 +63,12 @@ class ProjectCreateUpdateSerializer(serializers.ModelSerializer):
         return super().create({**validated_data, 'creator': self.context['request'].user})
 
 
-class ProjectGetSerializer(serializers.ModelSerializer):
+class ProjectListRetrieveSerializer(serializers.ReadOnlyModelSerializer):
     assignees = account_serializers.UserSerializer(many=True, read_only=True)
     creator = account_serializers.UserSerializer(many=False, read_only=True)
-    tasks = TaskGetSerializer(many=True, read_only=True)
+    tasks = TaskListRetrieveSerializer(many=True, read_only=True)
 
     class Meta:
         model = project_models.Project
-        fields = ('id', 'creator', 'title', 'description', 'tasks',
-                  'assignees', 'created_at', 'updated_at')
+        fields = ('id', 'title', 'description', 'tasks',
+                  'creator', 'assignees', 'created_at', 'updated_at')

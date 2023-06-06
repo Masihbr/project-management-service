@@ -1,11 +1,9 @@
-from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from rest_framework.authentication import SessionAuthentication
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from accounts import serializers as account_serializers
-
-User = get_user_model()
 
 
 class UserSignUpAPIView(generics.CreateAPIView):

@@ -15,3 +15,11 @@ class User(AbstractUser):
         default=None,
         verbose_name=_('Role'),
     )
+    
+    @property
+    def is_developer(self):
+        return self.role == self.Role.DEVELOPER.value
+    
+    @property
+    def is_project_manager(self):
+        return self.role == self.Role.PROJECT_MANAGER.value
