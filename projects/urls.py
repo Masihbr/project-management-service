@@ -10,14 +10,14 @@ projects_router.register(
     basename="projects-crud",
 )
 
-# tasks_router = routers.SimpleRouter()
-# tasks_router.register(
-#     "",
-#     views.TaskModelViewSet,
-#     basename="tasks-crud",
-# )
+tasks_router = routers.SimpleRouter()
+tasks_router.register(
+    "",
+    views.TaskModelViewSet,
+    basename="tasks-crud",
+)
 
 urlpatterns = [
     path("crud/", include(projects_router.urls)),
-    # path("tasks/crud", include(projects_router.urls)),
+    path("tasks/crud/", include(tasks_router.urls)),
 ]
