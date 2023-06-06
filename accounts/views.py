@@ -19,16 +19,16 @@ class LoginAPIView(generics.GenericAPIView):
     authentication_classes = [SessionAuthentication]
 
     def post(self, request):
-        print(request.data)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data.get('username')
-        password = serializer.validated_data.get('password')
-        user = authenticate(request=request, username=username,
-                            password=password)
+        username = serializer.validated_data.get("username")
+        password = serializer.validated_data.get("password")
+        user = authenticate(
+            request=request, username=username, password=password)
         if user is not None:
-            auth_login(request, user)
-            return Response({'detail': 'Logged in successfully.'})
+            auth_login(request,  user)
+            return Response({"detail": "Logged in successfully."})
         else:
-            return Response({'detail': 'Invalid credentials.'},
-                            status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED
+            )
