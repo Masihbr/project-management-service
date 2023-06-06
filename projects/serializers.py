@@ -41,7 +41,7 @@ class TaskCreateUpdateSerializer(serializers.ModelSerializer):
         return super().create({**validated_data, 'creator': self.context['request'].user})
 
 
-class TaskListRetrieveSerializer(serializers.ReadOnlyModelSerializer):
+class TaskListRetrieveSerializer(serializers.ModelSerializer):
     assignee = account_serializers.UserSerializer(many=False, read_only=True)
     creator = account_serializers.UserSerializer(many=False, read_only=True)
 
@@ -63,7 +63,7 @@ class ProjectCreateUpdateSerializer(serializers.ModelSerializer):
         return super().create({**validated_data, 'creator': self.context['request'].user})
 
 
-class ProjectListRetrieveSerializer(serializers.ReadOnlyModelSerializer):
+class ProjectListRetrieveSerializer(serializers.ModelSerializer):
     assignees = account_serializers.UserSerializer(many=True, read_only=True)
     creator = account_serializers.UserSerializer(many=False, read_only=True)
     tasks = TaskListRetrieveSerializer(many=True, read_only=True)
