@@ -6,9 +6,11 @@ from projects import models as project_models
 GROUPS_PERMISSIONS = {
     account_models.User.Role.DEVELOPER.value: {
         project_models.Project: ['view'],
+        project_models.Task: ['view', 'add'],
     },
     account_models.User.Role.PRODUCT_MANAGER.value: {
         project_models.Project: ['view', 'add', 'change'],
+        project_models.Task: ['view', 'add', 'change'],
     },
 }
 
