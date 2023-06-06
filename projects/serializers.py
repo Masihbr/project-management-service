@@ -13,9 +13,13 @@ class TaskCreateUpdateSerializer(serializers.ModelSerializer):
 
     def validate_assignee(self, value):
         creator: account_models.User = self.context['request'].user
-        if creator.is_developer and value != creator:
+        assignee: account_models.User = value
+        if creator.is_developer and assignee != creator:
             raise serializers.ValidationError(
                 'You can only assign tasks to yourself.')
+        elif creator.is_project_manager and not assignee.is_developer:
+            raise serializers.ValidationError(
+                'You can only assign tasks to developers.')
         return value
 
     def validate_project(self, value):
@@ -57,7 +61,15 @@ class ProjectCreateUpdateSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'description', 'tasks',
                   'creator', 'assignees', 'created_at', 'updated_at')
         extra_kwargs = {'assignees': {'required': False}}
-        read_only_fields = ('creator',)
+        read_only_fields = ('creator', 'tasks')
+
+    def validate_assignees(self, value):
+        user_list: list = value
+        for user in user_list:
+            if not user.is_developer:
+                raise serializers.ValidationError(
+                    'All assignees must be developers.')
+        return value
 
     def create(self, validated_data):
         return super().create({**validated_data, 'creator': self.context['request'].user})
