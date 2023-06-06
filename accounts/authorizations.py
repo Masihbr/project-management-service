@@ -1,11 +1,14 @@
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from accounts import models as account_models
+from projects import models as project_models
 
 GROUPS_PERMISSIONS = {
     account_models.User.Role.DEVELOPER.value: {
+        project_models.Project: ['view'],
     },
     account_models.User.Role.PRODUCT_MANAGER.value: {
+        project_models.Project: ['view', 'add', 'change'],
     },
 }
 

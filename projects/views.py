@@ -9,7 +9,8 @@ User = get_user_model()
 
 
 class ProjectModelViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated,
+                          permissions.DjangoModelPermissions]
 
     def get_serializer_class(self, *args, **kwargs):
         if self.action in ('list', 'retrieve'):
