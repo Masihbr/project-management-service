@@ -1,4 +1,3 @@
-import stat
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -8,7 +7,7 @@ from accounts import models as account_models
 from projects import models as project_models
 
 
-class ProjectAPITestCase(APITestCase):
+class BaseProjectsAPITestCase(APITestCase):
     PROJECT_MANAGERS_COUNT = 2
     DEVELOPERS_COUNT = 4
 
@@ -70,17 +69,20 @@ class ProjectAPITestCase(APITestCase):
             list_project_url
         )
 
+
+class ProjectAPITestCase(BaseProjectsAPITestCase):
+
     def test_project_manager_creates_projects(self):
-        creation_payload = {
+        project_creation_payload = {
             'title': 'test title',
             'description': 'test desc',
         }
         response = self.create_project(
-            self.project_managers[0], creation_payload)
+            self.project_managers[0], project_creation_payload)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(project_models.Project.objects.count(), 1)
         does_project_exist: bool = project_models.Project.objects.filter(
-            title=creation_payload['title'], description=creation_payload['description']).exists()
+            title=project_creation_payload['title'], description=project_creation_payload['description']).exists()
         self.assertEqual(does_project_exist, True)
 
     def test_project_manager_assigns_developers_to_project(self):
@@ -149,12 +151,14 @@ class ProjectAPITestCase(APITestCase):
         response = self.create_project(
             self.project_managers[0], project_creation_payload)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        
+
         response = self.get_projects(self.developers[0])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response_json = response.json()
-        self.assertEqual(response_json[0].get('title'), project_creation_payload['title'])
-        self.assertEqual(response_json[0].get('description'), project_creation_payload['description'])
+        self.assertEqual(response_json[0].get(
+            'title'), project_creation_payload['title'])
+        self.assertEqual(response_json[0].get(
+            'description'), project_creation_payload['description'])
 
     def test_developer_can_not_create_projects(self):
         project_creation_payload = {
