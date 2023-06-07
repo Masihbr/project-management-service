@@ -4,7 +4,7 @@ from projects import models as project_models
 from accounts import models as account_models
 
 
-class TaskCreateUpdateSerializer(serializers.ModelSerializer):
+class TaskCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = project_models.Task
         fields = ('id', 'creator', 'title', 'description', 'status',
@@ -44,6 +44,13 @@ class TaskCreateUpdateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return super().create({**validated_data, 'creator': self.context['request'].user})
 
+
+class TaskUpdateSerializer(TaskCreateSerializer):
+    class Meta:
+        model = project_models.Task
+        fields = ('id', 'creator', 'title', 'description', 'status',
+                  'project', 'assignee', 'created_at', 'updated_at')
+        read_only_fields = ('creator', 'project')
 
 class TaskListRetrieveSerializer(serializers.ModelSerializer):
     assignee = account_serializers.UserSerializer(many=False, read_only=True)

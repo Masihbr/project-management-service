@@ -1,4 +1,3 @@
-from typing import Iterable, Optional
 from django.db import models
 
 

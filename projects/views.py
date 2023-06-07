@@ -32,7 +32,9 @@ class TaskModelViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self, *args, **kwargs):
         if self.action in ('list', 'retrieve'):
             return project_serializers.TaskListRetrieveSerializer
-        return project_serializers.TaskCreateUpdateSerializer
+        elif self.action in ('update', 'partial_update'):
+            return project_serializers.TaskUpdateSerializer
+        return project_serializers.TaskCreateSerializer
 
     def get_queryset(self):
         user: account_models.User = self.request.user
