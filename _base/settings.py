@@ -29,6 +29,9 @@ DEBUG = get_config('DEBUG')
 
 ALLOWED_HOSTS = get_config('ALLOWED_HOSTS')
 
+# CSRF
+
+CSRF_TRUSTED_ORIGINS = get_config("CSRF_TRUSTED_ORIGINS")
 
 # Application definition
 

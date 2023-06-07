@@ -21,6 +21,7 @@ configs = {
         'HOST': __get_env_variable('DEFAULT_DATABASE_HOST', 'localhost'),
         'PORT': __get_env_variable('DEFAULT_DATABASE_PORT', '5432'),
     },
+    'CSRF_TRUSTED_ORIGINS': __get_env_variable('CSRF_TRUSTED_ORIGINS', 'localhost').split(' '),
 }
 
 
