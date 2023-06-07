@@ -28,7 +28,7 @@ def get_model_generic_permission(model_class, generic_permission):
         codename=codename)
 
 
-def setup_groups():
+def setup_groups(quiet=False):
     for group_name in GROUPS_PERMISSIONS:
         group, _ = Group.objects.get_or_create(name=group_name)
         for model_cls in GROUPS_PERMISSIONS[group_name]:
@@ -36,4 +36,5 @@ def setup_groups():
                 perm = get_model_generic_permission(
                     model_class=model_cls, generic_permission=perm_name)
                 group.permissions.add(perm)
-                print(f"Adding {perm.codename} to group {group}")
+                if not quiet:
+                    print(f"Adding {perm.codename} to group {group}")

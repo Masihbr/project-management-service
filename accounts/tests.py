@@ -8,7 +8,7 @@ from accounts import models as account_models
 
 class DeveloperSignUpAPITestCase(APITestCase):
     def setUp(self):
-        setup_groups()
+        setup_groups(quiet=True)
         self.client = self.client_class()
         self.signup_url = reverse('sign-up')
         self.username = 'user'
@@ -81,7 +81,7 @@ class ProjectManagerSignUpAPITestCase(DeveloperSignUpAPITestCase):
 
 class DeveloperSignInAPITestCase(APITestCase):
     def setUp(self):
-        setup_groups()
+        setup_groups(quiet=True)
         self.client = self.client_class()
         self.login_url = reverse('login')
         self.username = 'user'
@@ -142,7 +142,7 @@ class DeveloperSignInAPITestCase(APITestCase):
 
 class ProjectManagerSignInAPITestCase(DeveloperSignInAPITestCase):
     def setUp(self):
-        setup_groups()
+        setup_groups(quiet=True)
         self.client = self.client_class()
         self.login_url = reverse('login')
         self.username = 'user'
