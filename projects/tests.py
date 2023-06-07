@@ -72,7 +72,7 @@ class BaseProjectsAPITestCase(APITestCase):
 
 class ProjectAPITestCase(BaseProjectsAPITestCase):
 
-    def test_project_manager_creates_projects(self):
+    def test_project_manager_creates_project(self):
         project_creation_payload = {
             'title': 'test title',
             'description': 'test desc',
@@ -192,3 +192,127 @@ class ProjectAPITestCase(BaseProjectsAPITestCase):
         response = self.update_project(
             self.developers[0], project, project_update_payload)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class TaskAPITestCase(BaseProjectsAPITestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        project1_payload = {'title': 'p1', 'description': 'd1',
+                            'assignees': [self.developers[0].id,
+                                          self.developers[1].id,
+                                          self.developers[2].id]}
+        response = self.create_project(
+            self.project_managers[0], project1_payload)
+        self.project1 = project_models.Project.objects.get(
+            id=response.json().get('id'))
+        project2_payload = {'title': 'p2', 'description': 'd2',
+                            'assignees': [self.developers[1].id,
+                                          self.developers[2].id,
+                                          self.developers[3].id]}
+        response = self.create_project(
+            self.project_managers[1], project2_payload)
+        self.project2 = project_models.Project.objects.get(
+            id=response.json().get('id'))
+
+    def create_task(self, user: account_models.User, payload: dict):
+        crate_task_url = reverse('tasks-crud-list')
+        self.client.force_login(user)
+        return self.client.post(
+            crate_task_url,
+            data=payload,
+            format='json'
+        )
+
+    def test_project_manager_creates_task(self):
+        task_creation_payload = {
+            'title': 'test title',
+            'description': 'test desc',
+            'project': self.project1.id,
+            'assignee': self.developers[0].id
+        }
+        response = self.create_task(
+            self.project_managers[0], task_creation_payload)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(project_models.Task.objects.count(), 1)
+
+    def test_developer_creates_task(self):
+        task_creation_payload = {
+            'title': 'test title',
+            'description': 'test desc',
+            'project': self.project1.id,
+            'assignee': self.developers[0].id
+        }
+        response = self.create_task(
+            self.developers[0], task_creation_payload)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(project_models.Task.objects.count(), 1)
+
+    def test_developer_can_only_assign_self(self):
+        task_creation_payload = {
+            'title': 'test title',
+            'description': 'test desc',
+            'project': self.project1.id,
+            'assignee': self.developers[1].id
+        }
+        response = self.create_task(
+            self.developers[0], task_creation_payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(project_models.Task.objects.count(), 0)
+
+    def test_project_manager_can_only_assign_developers(self):
+        task_creation_payload = {
+            'title': 'test title',
+            'description': 'test desc',
+            'project': self.project1.id,
+            'assignee': self.project_managers[1].id
+        }
+        response = self.create_task(
+            self.project_managers[0], task_creation_payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(project_models.Task.objects.count(), 0)
+
+    def test_developer_can_see_others_tasks(self):
+        task_creation_payload = {
+            'title': 'test title',
+            'description': 'test desc',
+            'project': self.project1.id,
+            'assignee': self.developers[0].id
+        }
+        response = self.create_task(
+            self.project_managers[0], task_creation_payload)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(project_models.Task.objects.count(), 1)
+
+        response = self.get_projects(self.developers[1])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_json = response.json()
+        self.assertEqual(response_json[0].get(
+            'tasks')[0].get('title'), task_creation_payload['title'])
+        self.assertEqual(response_json[0].get(
+            'tasks')[0].get('description'), task_creation_payload['description'])
+        self.assertEqual(response_json[0].get(
+            'tasks')[0].get('assignee').get('id'), self.developers[0].id)
+
+    def test_developer_can_only_create_tasks_in_their_own_projects(self):
+        task_creation_payload = {
+            'title': 'test title',
+            'description': 'test desc',
+            'project': self.project2.id,
+            'assignee': self.developers[0].id
+        }
+        response = self.create_task(
+            self.developers[0], task_creation_payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(project_models.Task.objects.count(), 0)
+
+    def test_project_manager_can_only_create_tasks_in_their_own_projects(self):
+        task_creation_payload = {
+            'title': 'test title',
+            'description': 'test desc',
+            'project': self.project2.id,
+            'assignee': self.developers[0].id
+        }
+        response = self.create_task(
+            self.project_managers[0], task_creation_payload)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(project_models.Task.objects.count(), 0)
