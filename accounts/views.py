@@ -30,3 +30,11 @@ class LoginAPIView(generics.GenericAPIView):
             return Response(
                 {"detail": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED
             )
+
+
+class LogoutAPIView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        request.session.flush()
+        return Response({"success": "Successfully logged out."})

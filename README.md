@@ -12,3 +12,9 @@ while read requirement; do pip install $requirement || break; done < requirement
 python manage.py migrate
 python manage.py runserver
 ```
+
+# Docker
+Use below command for dockerized view
+```py
+docker-compose --env-file docker-compose.env up --build
+```

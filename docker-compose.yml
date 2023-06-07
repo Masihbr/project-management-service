@@ -1,0 +1,61 @@
+version: "3.5"
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    ports:
+      - 8080:8080
+    volumes:
+      - ./static/:/static/
+      - ./media/:/media/
+      - /var/log/webeloper-back/nginx/:/var/log/nginx/
+      - ./deploy/nginx:/etc/nginx/conf.d
+    depends_on:
+      - web
+  web:
+    build: .
+    container_name: web
+    restart: always
+    depends_on:
+      postgres:
+        condition: "service_healthy"
+    command: >
+      sh -c "
+        python ./manage.py migrate;
+        python ./manage.py setup_groups;
+        python ./manage.py collectstatic --noinput;
+        gunicorn --bind=0.0.0.0:8000 --timeout=90 --workers=6 --preload _base.wsgi:application;
+      "
+    volumes:
+      - .:/app/project-management-service/
+      - ./static/:/static
+      - ./media/:/media
+      - /var/log/project-management-service:/var/log/project-management-service
+      - cachedata:/cachec
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+  postgres:
+    restart: always
+    image: postgres:latest
+    volumes:
+      - ./media/:/media/
+      - dbdata:/var/lib/postgresql/data/
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "${DB_NAME}", "-U", "${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  dbdata:
+  cachedata:

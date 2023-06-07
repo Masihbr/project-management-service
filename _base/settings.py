@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+from .configs import get_config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!i*nx9=5ven-mcucp(txlonrhkio#$isb6^g=ttm&gyfaw!cd&'
+SECRET_KEY = get_config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = get_config('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = get_config('ALLOWED_HOSTS')
 
 
 # Application definition
@@ -80,12 +82,7 @@ WSGI_APPLICATION = '_base.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+DATABASES = {"default": get_config("DEFAULT_DATABASE")}
 
 
 # Password validation
@@ -139,3 +136,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ]
 }
+
+# static files
+
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR.joinpath("/static")
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/media/"
