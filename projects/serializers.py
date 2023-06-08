@@ -55,6 +55,14 @@ class TaskUpdateSerializer(TaskCreateSerializer):
     def validate_project(self, value):
         return value
 
+    def validate(self, attrs):
+        project: project_models.Project = self.instance.project
+        assignee: account_models.User = attrs.get('assignee')
+        if not project.has_assignee(assignee):
+            raise serializers.ValidationError(
+                'Task assignee must be in the project.')
+        return attrs
+
 
 class TaskListRetrieveSerializer(serializers.ModelSerializer):
     assignee = account_serializers.UserSerializer(many=False, read_only=True)
