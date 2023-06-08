@@ -71,7 +71,7 @@ class ProjectCreateUpdateSerializer(serializers.ModelSerializer):
         read_only_fields = ('creator', 'tasks')
 
     def validate_assignees(self, value):
-        user_list: list = value
+        user_list: list[account_models.User] = value
         for user in user_list:
             if not user.is_developer:
                 raise serializers.ValidationError(
