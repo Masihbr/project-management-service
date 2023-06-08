@@ -15,7 +15,7 @@ configs = {
     'ALLOWED_HOSTS': __get_env_variable('DJANGO_ALLOWED_HOSTS', 'localhost 127.0.0.1 [::1]').split(' '),
     'DEFAULT_DATABASE': {
         'ENGINE': __get_env_variable('DEFAULT_DATABASE_ENGINE', 'django.db.backends.postgresql'),
-        'NAME': __get_env_variable('DEFAULT_DATABASE_NAME', 'project_manegement_db'),
+        'NAME': __get_env_variable('DEFAULT_DATABASE_NAME', 'project_management_db'),
         'USER': __get_env_variable('DEFAULT_DATABASE_USER', 'user'),
         'PASSWORD': __get_env_variable('DEFAULT_DATABASE_PASSWORD', 'password'),
         'HOST': __get_env_variable('DEFAULT_DATABASE_HOST', 'localhost'),
