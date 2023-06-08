@@ -52,6 +52,7 @@ class TaskUpdateSerializer(TaskCreateSerializer):
                   'project', 'assignee', 'created_at', 'updated_at')
         read_only_fields = ('creator', 'project')
 
+
 class TaskListRetrieveSerializer(serializers.ModelSerializer):
     assignee = account_serializers.UserSerializer(many=False, read_only=True)
     creator = account_serializers.UserSerializer(many=False, read_only=True)
